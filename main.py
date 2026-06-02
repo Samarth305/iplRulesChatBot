@@ -1,6 +1,15 @@
 import glob
 import json
 import os
+import sys
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Prevent huggingface_hub from crashing on Windows due to symlink privilege issues
+os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
+
 from typing import List
 from rag_pipeline import RAGPipeline
 from create_parser import create_parser

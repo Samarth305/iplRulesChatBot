@@ -1,4 +1,4 @@
-from openai import OpenAI
+from groq import Groq
 
 
 def invoke_ai(system_message: str, user_message: str) -> str:
@@ -7,9 +7,9 @@ def invoke_ai(system_message: str, user_message: str) -> str:
     Replace this if you want to use a different AI model.
     """
 
-    client = OpenAI()  # Insert the API key here, or use env variable $OPENAI_API_KEY.
+    client = Groq()  # Automatically uses $GROQ_API_KEY
     response = client.chat.completions.create(
-        model="o4-mini",
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_message},

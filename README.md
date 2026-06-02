@@ -1,106 +1,318 @@
-# Simple RAG Pipeline
+# 🏏 IPL Rules Chatbot – Retrieval Augmented Generation (RAG)
 
-This project is a beginner-friendly tutorial project for building a Retrieval Augmented Generation (RAG) system. It demonstrates how to index documents, retrieve relevant content, generate AI-powered responses, and evaluate results—all through a command line interface (CLI).
+An AI-powered chatbot that answers questions about **IPL Playing Conditions, DRS, Super Overs, Match Regulations, Player Conduct, and Tournament Rules** using the official IPL rulebook as its knowledge source.
 
-![rag-image](./rag-design-basic.png)
+Instead of relying on generic LLM knowledge, the system retrieves relevant sections directly from the official IPL rulebook and generates accurate, context-aware answers grounded in the source document.
 
-## Overview
+---
 
-The RAG Framework lets you:
+## 📌 Overview
 
-- **Index Documents:** Process and break documents (e.g., PDFs) into smaller, manageable chunks.
-- **Store & Retrieve Information:** Save document embeddings in a vector database (using LanceDB) and search using similarity.
-- **Generate Responses:** Use an AI model (via the OpenAI API) to provide concise answers based on the retrieved context.
-- **Evaluate Responses:** Compare the generated response against expected answers and view the reasoning behind the evaluation.
+The IPL Rulebook contains hundreds of pages of detailed regulations that can be difficult to navigate manually.
 
-## Architecture
+This project solves that problem by implementing a **Retrieval Augmented Generation (RAG) pipeline** that:
 
-- **Pipeline (src/rag_pipeline.py):**  
-  Orchestrates the process using:
+1. Extracts and processes the official IPL rulebook.
+2. Converts rulebook content into vector embeddings.
+3. Stores embeddings in a local vector database.
+4. Retrieves the most relevant rules for a user query.
+5. Re-ranks results for maximum relevance.
+6. Generates concise, human-readable answers using an LLM.
 
-  - **Datastore:** Manages embeddings and vector storage.
-  - **Indexer:** Processes documents and creates data chunks. Two versions are available—a basic PDF indexer and one using the Docling package.
-  - **Retriever:** Searches the datastore to pull relevant document segments.
-  - **ResponseGenerator:** Generates answers by calling the AI service.
-  - **Evaluator:** Compares the AI responses to expected answers and explains the outcome.
+The result is an intelligent assistant capable of answering IPL rule-related questions with high accuracy and source-grounded responses.
 
-- **Interfaces (interface/):**  
-  Abstract base classes define contracts for all components (e.g., BaseDatastore, BaseIndexer, BaseRetriever, BaseResponseGenerator, and BaseEvaluator), making it easy to extend or swap implementations.
+---
 
-## Installation
+## 🚀 Features
 
-#### Set Up a Virtual Environment (Optional but Recommended)
+* 📖 **Rulebook-Grounded Responses** – Answers are generated from the official IPL rulebook, reducing hallucinations and improving accuracy.
+* 🔒 **Local Document Processing** – Embeddings are generated locally using Ollama, ensuring privacy and zero embedding API costs.
+* ⚡ **Fast Semantic Search** – LanceDB enables efficient vector similarity search across the complete rulebook.
+* 🎯 **Intelligent Re-Ranking** – Cohere ReRank improves retrieval quality by prioritizing the most relevant rule sections.
+* 🤖 **High-Speed LLM Inference** – Groq's Llama 3.3 70B provides near-instant answer generation.
+* 📄 **Large Document Support** – Handles the complete IPL rulebook (119+ pages) with ease.
+* 💰 **Cost Efficient** – No OpenAI or Gemini API required.
+
+---
+
+## 🏗️ Architecture
+
+```text
+                    ┌─────────────────────┐
+                    │ IPL Rulebook (PDF)  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Docling Parser      │
+                    │ & Text Chunking     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Ollama Embeddings   │
+                    │ nomic-embed-text    │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ LanceDB Vector Store│
+                    └──────────┬──────────┘
+                               │
+                               │
+                               ▼
+                       ┌────────────────┐
+                       │   User Query   │
+                       └────────┬───────┘
+                       ┌──────────────────┐
+                       │ Semantic Search  │
+                       └────────┬─────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ Cohere Re-Rank   │
+                       └────────┬─────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ Groq LLM         │
+                       │ Llama 3.3 70B    │
+                       └────────┬─────────┘
+                                │
+                                ▼
+                         Final Answer
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Component              | Technology                   |
+| ---------------------- | ---------------------------- |
+| Language               | Python                       |
+| LLM                    | Groq Llama 3.3 70B Versatile |
+| Embeddings             | Ollama + nomic-embed-text    |
+| Vector Database        | LanceDB                      |
+| Document Processing    | Docling                      |
+| Re-Ranking             | Cohere ReRank                |
+| Environment Management | python-dotenv                |
+
+---
+
+## 📂 Project Structure
+
+```text
+.
+├── datastore/
+│   ├── lancedb_store.py
+│   └── embedding_manager.py
+│
+├── indexer/
+│   ├── document_parser.py
+│   └── chunker.py
+│
+├── retriever/
+│   ├── search.py
+│   └── reranker.py
+│
+├── generator/
+│   └── response_generator.py
+│
+├── sample_data/
+│   └── source/
+│       └── iplRuleBook.pdf
+│
+├── .env
+├── main.py
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd ipl-rules-chatbot
+```
+
+### 2. Create and Activate a Virtual Environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
 ```
 
-#### Install Dependencies
+Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Linux / macOS:
+
+```bash
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-#### Configure Environment Variables
+---
 
-We use OpenAI for the LLM (you can modify/replace it in `src/util/invoke_ai.py`). Make sure to set your OpenAI API key. For example:
+## 🦙 Setup Ollama
 
-```sh
-export OPENAI_API_KEY='your_openai_api_key'
-```
-
-You will also need a Cohere key for the re-ranking feature used in `src/impl/retriever.py`. You can create an account and create an API key at https://cohere.com/
-
-```sh
-set -x CO_API_KEY "xxx"
-```
-
-## Usage
-
-The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source/eval paths specified in `main.py`, but there are flags to override them.
-
-```python
-DEFAULT_SOURCE_PATH = "sample_data/source/"
-DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
-```
-
-#### Run the Full Pipeline
-
-This command resets the datastore, indexes documents, and evaluates the model.
+Install Ollama and pull the embedding model:
 
 ```bash
-python main.py run
+ollama pull nomic-embed-text
 ```
 
-#### Reset the Database
+Ensure Ollama is running:
 
-Clears the vector database.
+```bash
+ollama serve
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+CO_API_KEY=your_cohere_api_key
+```
+
+> No OpenAI or Gemini API keys are required.
+
+---
+
+## 📥 Index the IPL Rulebook
+
+### Step 1: Reset Existing Data
 
 ```bash
 python main.py reset
 ```
 
-#### Add Documents
+### Step 2: Add the Rulebook
 
-Index and embed documents. You can specify a file or directory path.
+Place the official IPL PDF inside:
+
+```text
+sample_data/source/
+```
+
+Then run:
 
 ```bash
 python main.py add -p "sample_data/source/"
 ```
 
-#### Query the Database
+The system will:
 
-Search for information using a query string.
+* Extract text from the PDF
+* Chunk the content
+* Generate embeddings locally
+* Store vectors in LanceDB
+
+---
+
+## 💬 Usage
+
+### Ask Questions
 
 ```bash
-python main.py query "What is the opening year of The Lagoon Breeze Hotel?"
+python main.py query "What are the rules for a Super Over?"
 ```
-
-#### Evaluate the Model
-
-Use a JSON file (with question/answer pairs) to evaluate the response quality.
 
 ```bash
-python main.py evaluate -f "sample_data/eval/sample_questions.json"
+python main.py query "When can a team take a DRS review?"
 ```
+
+```bash
+python main.py query "What are the concussion substitute rules?"
+```
+
+```bash
+python main.py query "What happens if rain interrupts an IPL match?"
+```
+
+```bash
+python main.py query "What situations result in a no-ball?"
+```
+
+---
+
+## 🎯 Example Workflow
+
+```text
+User Question
+      │
+      ▼
+Convert Query to Embedding
+      │
+      ▼
+Retrieve Relevant Rulebook Chunks
+      │
+      ▼
+Re-rank Results with Cohere
+      │
+      ▼
+Generate Context-Aware Answer
+      │
+      ▼
+Return Final Response
+```
+
+---
+
+## 🔮 Future Improvements
+
+* Streamlit or React-based chat interface
+* Source citations and highlighted references
+* Multi-document support
+* Conversation memory
+* Hybrid search (keyword + vector)
+* Docker deployment
+* Support for ICC and BCCI rulebooks
+* Evaluation metrics dashboard
+
+---
+
+## 📈 Learning Outcomes
+
+This project demonstrates practical experience with:
+
+* Retrieval Augmented Generation (RAG)
+* Vector Databases
+* Embedding Models
+* Semantic Search
+* Re-ranking Pipelines
+* Large Language Models
+* Document Intelligence
+* End-to-End AI System Design
+
+---
+
+## Example Query
+
+**Question**
+
+> What are the IPL Super Over rules?
+
+**Pipeline**
+
+1. Retrieve relevant Super Over sections from the IPL rulebook.
+2. Re-rank retrieved passages using Cohere.
+3. Generate a concise answer using Groq Llama 3.3 70B.
+4. Return a grounded response based on official IPL regulations.
+
+This approach ensures answers remain accurate, explainable, and grounded in the official IPL Playing Conditions document.
