@@ -41,6 +41,19 @@ class RAGPipeline:
         response = self.response_generator.generate_response(query, search_results)
         return response
 
+    def process_chat(self, query: str, history: List[Dict]) -> str:
+        """Process a query with conversational memory."""
+        if hasattr(self.response_generator, "rewrite_query"):
+            standalone_query = self.response_generator.rewrite_query(query, history)
+        else:
+            standalone_query = query
+            
+        search_results = self.retriever.search(standalone_query)
+        print(f"✅ Found {len(search_results)} results for query: {standalone_query}\n")
+
+        response = self.response_generator.generate_response(standalone_query, search_results, history)
+        return response
+
     def evaluate(
         self, sample_questions: List[Dict[str, str]]
     ) -> List[EvaluationResult]:

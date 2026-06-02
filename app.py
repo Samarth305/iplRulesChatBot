@@ -36,7 +36,7 @@ if prompt := st.chat_input("What are the rules for a super over?"):
     # Get AI response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = st.session_state.pipeline.process_query(prompt)
+            response = st.session_state.pipeline.process_chat(prompt, st.session_state.messages[:-1])
             st.markdown(response)
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
