@@ -227,14 +227,17 @@ The system will:
 
 ## 💬 Usage
 
-### Ask Questions
-
+#### 3. Start the Web UI (Recommended)
+Launch the beautiful Streamlit chat interface:
 ```bash
-python main.py query "What are the rules for a Super Over?"
+streamlit run app.py
 ```
+This will open a new tab in your browser where you can chat naturally with the AI!
 
+#### 4. Ask Questions via CLI (Optional)
+If you prefer the command line:
 ```bash
-python main.py query "When can a team take a DRS review?"
+python main.py query "What are the rules for a super over?"
 ```
 
 ```bash

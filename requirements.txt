@@ -7,3 +7,4 @@ cohere==5.15.0
 groq
 ollama
 python-dotenv
+streamlit
